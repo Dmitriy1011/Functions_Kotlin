@@ -93,7 +93,7 @@ val mir = "MIR"
 val vkPay = "VKPAY"
 val maxTransferSumWithCardPerDay = 150_000
 val maxTransferSumWithVkPayPerDay = 15_000
-val maxTransferSumWithCardPerMonth = 1_200_000
+val maxTransferSumWithCardPerMonth = 600_000
 val maxTransferSumWithVkPayPerMonth = 40_000
 
 fun calculateCommission(cardAccountType: String, thisTransferSum: Int, previousTransfersSum: Int = 0): Int {
@@ -101,28 +101,13 @@ fun calculateCommission(cardAccountType: String, thisTransferSum: Int, previousT
     val commissionSum: Int = (thisTransferSum * 0.75 / 100).toInt()
 
     val result = when (cardAccountType) {
-        maestro -> when {
+        maestro, mastercard -> when {
             previousTransfersSum > maxTransferSumWithCardPerMonth -> -1
             thisTransferSum > maxTransferSumWithCardPerDay -> -1
             else -> thisTransferSum
         }
 
-        mastercard -> when {
-            previousTransfersSum > maxTransferSumWithCardPerMonth -> -1
-            thisTransferSum > maxTransferSumWithCardPerDay -> -1
-            else -> thisTransferSum
-        }
-
-        visa -> when {
-            previousTransfersSum > maxTransferSumWithCardPerMonth -> -1
-            thisTransferSum > maxTransferSumWithCardPerDay -> -1
-            else -> when {
-                thisTransferSum >= 35 -> thisTransferSum + commissionSum
-                else -> -1
-            }
-        }
-
-        mir -> when {
+        visa, mir -> when {
             previousTransfersSum > maxTransferSumWithCardPerMonth -> -1
             thisTransferSum > maxTransferSumWithCardPerDay -> -1
             else -> when {
